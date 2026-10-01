@@ -1152,6 +1152,19 @@
             function traverse(obj) {
                 if (!obj || !obj.events) return;
                 for (const evt of obj.events) {
+                    // Detect built-in prev/next slide triggers
+                    if (evt.kind === 'onprevslide') {
+                        issues.push({
+                            type: 'previous_trigger',
+                            message: '"Previous Slide" built-in trigger detected — may break if slide numbers change'
+                        });
+                    }
+                    if (evt.kind === 'onnextslide') {
+                        issues.push({
+                            type: 'next_trigger',
+                            message: '"Next Slide" built-in trigger detected — may break if slide numbers change'
+                        });
+                    }
                     if (!evt.actions) continue;
                     for (const a of evt.actions) {
                         // Check for gotoplay patterns that rely on slide numbering
@@ -1493,13 +1506,15 @@
                         // Detect variable-set operations
                         // Storyline uses kind like 'adjust_variable', 'set_variable', 'toggle_variable'
                         // or action.name like 'Variable.Set', 'Variable.Adjust'
+                        // Storyline 360 uses 'adjustvar' kind with 'variable' prop
                         const isVarSet = a.kind === 'adjust_variable' || a.kind === 'set_variable'
                             || a.kind === 'toggle_variable'
+                            || a.kind === 'adjustvar'
                             || (typeof a.name === 'string' && a.name.startsWith('Variable.'));
 
                         if (isVarSet) {
-                            const varName = a.target || a.name?.replace('Variable.', '') || '';
-                            if (varName) {
+                            const varName = a.variable || a.target || a.name?.replace('Variable.', '') || '';
+                            if (varName && !varName.startsWith('_player') && !varName.startsWith('_playerVars')) {
                                 usedVars.add(varName);
                                 if (isTimelineStartEvent(evt)) {
                                     initVars.add(varName);
@@ -1510,9 +1525,10 @@
                         // Recurse into condition branches
                         if (a.thenActions) a.thenActions.forEach(sub => {
                             if (sub.kind === 'adjust_variable' || sub.kind === 'set_variable'
+                                || sub.kind === 'adjustvar'
                                 || (typeof sub.name === 'string' && sub.name.startsWith('Variable.'))) {
-                                const vn = sub.target || sub.name?.replace('Variable.', '') || '';
-                                if (vn) {
+                                const vn = sub.variable || sub.target || sub.name?.replace('Variable.', '') || '';
+                                if (vn && !vn.startsWith('_player') && !vn.startsWith('_playerVars')) {
                                     usedVars.add(vn);
                                     if (isTimelineStartEvent(evt)) initVars.add(vn);
                                 }
@@ -1520,9 +1536,10 @@
                         });
                         if (a.elseActions) a.elseActions.forEach(sub => {
                             if (sub.kind === 'adjust_variable' || sub.kind === 'set_variable'
+                                || sub.kind === 'adjustvar'
                                 || (typeof sub.name === 'string' && sub.name.startsWith('Variable.'))) {
-                                const vn = sub.target || sub.name?.replace('Variable.', '') || '';
-                                if (vn) {
+                                const vn = sub.variable || sub.target || sub.name?.replace('Variable.', '') || '';
+                                if (vn && !vn.startsWith('_player') && !vn.startsWith('_playerVars')) {
                                     usedVars.add(vn);
                                     if (isTimelineStartEvent(evt)) initVars.add(vn);
                                 }
@@ -1572,9 +1589,25 @@
                 
                 if (obj.events && Array.isArray(obj.events)) {
                     for (const event of obj.events) {
+                        // Track built-in prev/next slide navigation events
+                        if (event.kind === 'onprevslide') {
+                            navTargets.push({
+                                triggerName: currentObjName || 'Previous Button',
+                                targetSlide: '<< PREVIOUS SLIDE >>',
+                                targetId: 'previous_slide'
+                            });
+                        }
+                        if (event.kind === 'onnextslide') {
+                            navTargets.push({
+                                triggerName: currentObjName || 'Next Button',
+                                targetSlide: '<< NEXT SLIDE >>',
+                                targetId: 'next_slide'
+                            });
+                        }
                         if (event.actions) {
                             for (const action of event.actions) {
-                                if (action.kind === 'gotoplay' && action.objRef?.value) {
+                                const checkAction = (a) => {
+                                    if (a.kind === 'gotoplay' && a.objRef?.value) {
                                     const targetId = action.objRef.value;
                                     let targetName = slideIdToName.get(targetId);
                                     
@@ -1595,6 +1628,10 @@
                                         targetId: targetId
                                     });
                                 }
+                                if (a.thenActions) a.thenActions.forEach(sub => checkAction(sub));
+                                if (a.elseActions) a.elseActions.forEach(sub => checkAction(sub));
+                                };
+                                checkAction(action);
                                 // Also handle jump kind and motion-based navigation (prev/next)
                                 if (action.kind === 'jump') {
                                     const targetRef = (action.to || action.target || '');
