@@ -1608,7 +1608,7 @@
                             for (const action of event.actions) {
                                 const checkAction = (a) => {
                                     if (a.kind === 'gotoplay' && a.objRef?.value) {
-                                    const targetId = action.objRef.value;
+                                    const targetId = a.objRef.value;
                                     let targetName = slideIdToName.get(targetId);
                                     
                                     // If not found in map, try to extract from the ID
