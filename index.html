@@ -5950,10 +5950,13 @@
             } catch (error) {
                 console.error('Analysis error:', error);
                 const errText = 'Error: ' + (error.message || String(error));
-                alert(errText + '\n\nSee debug info below for details.');
+                const errStack = error.stack || '';
+                const fullDetail = errText + '\n\n--- Stack Trace ---\n' + errStack;
+                console.error('Full error:', fullDetail);
+                alert(errText + '\n\nSee "Error Details" box for full trace.');
                 const errDetail = document.getElementById('errorDetailText');
                 const errBox = document.getElementById('errorDetails');
-                if (errDetail) errDetail.textContent = errText;
+                if (errDetail) errDetail.textContent = fullDetail + '\n\nNote: Stack trace may appear as "unknown" in production builds.';
                 if (errBox) errBox.style.display = 'block';
             } finally {
                 document.getElementById('progress').classList.add('hidden');
