@@ -2069,35 +2069,36 @@
             document.getElementById('analysisProgressText').textContent = `Analyzing ${slideFiles.length} files...`;
             
             for (let i = 0; i < slideFiles.length; i++) {
-                if (i % 5 === 0) {
-                    document.getElementById('analysisProgressText').textContent = `Processing file ${i + 1}/${slideFiles.length}...`;
-                    await new Promise(resolve => setTimeout(resolve, 0));
-                }
-                
-                const { path, entry } = slideFiles[i];
-                const content = await entry.async('text');
-                const slideData = parseJSFile(content, i);
-                
-                if (!slideData) {
-                    continue;
-                }
-                
-                const slideNumber = analysis.totalSlides + 1;
-                const slideName = detectSlideTitle(slideData);
-                const slideId = slideData.id || `slide_${slideNumber}`;
-                analysis.totalSlides++;
-                
-                // Build slide ID to name mapping with multiple formats
-                analysis.slideIdToName.set(slideId, slideName);
-                // Also store short version (last part after dot)
-                if (slideId.includes('.')) {
-                    const shortId = slideId.split('.').pop();
-                    analysis.slideIdToName.set(shortId, slideName);
-                }
-                // Store with _player prefix if not already there
-                if (!slideId.startsWith('_player.')) {
-                    analysis.slideIdToName.set(`_player.${slideId}`, slideName);
-                }
+                try {
+                    if (i % 5 === 0) {
+                        document.getElementById('analysisProgressText').textContent = `Processing file ${i + 1}/${slideFiles.length}...`;
+                        await new Promise(resolve => setTimeout(resolve, 0));
+                    }
+                    
+                    const { path, entry } = slideFiles[i];
+                    const content = await entry.async('text');
+                    const slideData = parseJSFile(content, i);
+                    
+                    if (!slideData) {
+                        continue;
+                    }
+                    
+                    const slideNumber = analysis.totalSlides + 1;
+                    const slideName = detectSlideTitle(slideData);
+                    const slideId = slideData.id || `slide_${slideNumber}`;
+                    analysis.totalSlides++;
+                    
+                    // Build slide ID to name mapping with multiple formats
+                    analysis.slideIdToName.set(slideId, slideName);
+                    // Also store short version (last part after dot)
+                    if (slideId.includes('.')) {
+                        const shortId = slideId.split('.').pop();
+                        analysis.slideIdToName.set(shortId, slideName);
+                    }
+                    // Store with _player prefix if not already there
+                    if (!slideId.startsWith('_player.')) {
+                        analysis.slideIdToName.set(`_player.${slideId}`, slideName);
+                    }
                 
                 const triggerIssues = analyzeTriggers(slideData, slideNumber, slideName);
                 if (triggerIssues.length > 0) {
@@ -2450,6 +2451,10 @@
                         });
                     }
                 }
+                } catch (slideErr) {
+                    console.error('Slide error: ' + (slideErr.message || String(slideErr)));
+                    try { analysis.totalSlides--; } catch(e) {}
+                }
             }
             
             // Second pass: Extract navigation flow and detect TOC (needs slide name mapping)
@@ -2568,6 +2573,7 @@
                 document.getElementById('validationProgressContainer').classList.remove('hidden');
                 
                 for (let i = 0; i < analysis.slideTexts.length; i++) {
+                    try {
                     const slideText = analysis.slideTexts[i];
                     
                     // Check if text is long enough to warrant grammar check
@@ -2634,6 +2640,9 @@
                     
                     // Rate limiting - wait between requests
                     await new Promise(resolve => setTimeout(resolve, 500));
+                    } catch (gErr) {
+                        console.error('Grammar check error at text ' + i + ':', gErr.message || String(gErr));
+                    }
                 }
                 
                 document.getElementById('validationProgressContainer').classList.add('hidden');
