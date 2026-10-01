@@ -4665,7 +4665,7 @@
                 parts.push(`${slide.grammar.length} grammar`);
             }
             if (slide.triggers.length > 0) {
-                parts.push(`${slide.triggers.length} trigger`);
+                parts.push(`${(slide.triggers || []).length} trigger`);
             }
             if (slide.altText.length > 0) {
                 parts.push(`${slide.altText.length} alt text`);
@@ -4677,22 +4677,22 @@
                 parts.push(`${slide.accessibility.length} accessibility`);
             }
             if (slide.disabledTriggers.length > 0) {
-                parts.push(`${slide.disabledTriggers.length} disabled trigger`);
+                parts.push(`${(slide.disabledTriggers || []).length} disabled trigger`);
             }
             if (slide.uninitializedVars.length > 0) {
-                parts.push(`${slide.uninitializedVars.length} uninit var`);
+                parts.push(`${(slide.uninitializedVars || []).length} uninit var`);
             }
             if (slide.layerResets.length > 0) {
-                parts.push(`${slide.layerResets.length} layer reset`);
+                parts.push(`${(slide.layerResets || []).length} layer reset`);
             }
             if (slide.contentRules.length > 0) {
-                parts.push(`${slide.contentRules.length} content rule`);
+                parts.push(`${(slide.contentRules || []).length} content rule`);
             }
             if (slide.autoAdvance.length > 0) {
-                parts.push(`${slide.autoAdvance.length} auto-advance`);
+                parts.push(`${(slide.autoAdvance || []).length} auto-advance`);
             }
             if (slide.triggerPatterns.length > 0) {
-                parts.push(`${slide.triggerPatterns.length} nav trigger`);
+                parts.push(`${(slide.triggerPatterns || []).length} nav trigger`);
             }
             
             if (parts.length === 0) {
@@ -4727,6 +4727,12 @@
                     screenshots: slide.screenshots,
                     pageNumbers: slide.pageNumbers,
                     resetState: slide.resetState,
+                    disabledTriggers: slide.disabledTriggers || [],
+                    uninitializedVars: slide.uninitializedVars || [],
+                    layerResets: slide.layerResets || [],
+                    contentRules: slide.contentRules || [],
+                    autoAdvance: slide.autoAdvance || [],
+                    triggerPatterns: slide.triggerPatterns || [],
                     severity: severity,
                     summaryText: summaryText
                 };
@@ -5178,16 +5184,16 @@
                                     </div>
                                 ` : ''}
                                 
-                                ${slide.disabledTriggers.length > 0 ? `
+                                ${(slide.disabledTriggers || []).length > 0 ? `
                                     <div class="border-l-4 border-orange-500 pl-4">
                                         <div class="flex items-center justify-between mb-2">
-                                            <p class="font-semibold text-orange-900">Disabled Triggers (${slide.disabledTriggers.length}):</p>
+                                            <p class="font-semibold text-orange-900">Disabled Triggers (${(slide.disabledTriggers || []).length}):</p>
                                             <button onclick="dismissCategoryInSlide(${slide.slideNumber}, 'disabledTriggers')" class="text-xs bg-orange-600 hover:bg-orange-700 text-white px-2 py-1 rounded">
                                                 Dismiss All Disabled
                                             </button>
                                         </div>
                                         <ul class="space-y-1">
-                                            ${slide.disabledTriggers.map((err, idx) => {
+                                            ${(slide.disabledTriggers || []).map((err, idx) => {
                                                 const errorId = `slide${slide.slideNumber}_disabledTriggers_${idx}`;
                                                 return `
                                                     <li class="text-sm text-gray-700 error-item" data-error-id="${errorId}">
@@ -5205,16 +5211,16 @@
                                     </div>
                                 ` : ''}
                                 
-                                ${slide.uninitializedVars.length > 0 ? `
+                                ${(slide.uninitializedVars || []).length > 0 ? `
                                     <div class="border-l-4 border-purple-500 pl-4">
                                         <div class="flex items-center justify-between mb-2">
-                                            <p class="font-semibold text-purple-900">Uninitialized Vars (${slide.uninitializedVars.length}):</p>
+                                            <p class="font-semibold text-purple-900">Uninitialized Vars (${(slide.uninitializedVars || []).length}):</p>
                                             <button onclick="dismissCategoryInSlide(${slide.slideNumber}, 'uninitializedVars')" class="text-xs bg-purple-600 hover:bg-purple-700 text-white px-2 py-1 rounded">
                                                 Dismiss All Vars
                                             </button>
                                         </div>
                                         <ul class="space-y-1">
-                                            ${slide.uninitializedVars.map((err, idx) => {
+                                            ${(slide.uninitializedVars || []).map((err, idx) => {
                                                 const errorId = `slide${slide.slideNumber}_uninitializedVars_${idx}`;
                                                 return `
                                                     <li class="text-sm text-gray-700 error-item" data-error-id="${errorId}">
@@ -5232,16 +5238,16 @@
                                     </div>
                                 ` : ''}
                                 
-                                ${slide.layerResets.length > 0 ? `
+                                ${(slide.layerResets || []).length > 0 ? `
                                     <div class="border-l-4 border-pink-500 pl-4">
                                         <div class="flex items-center justify-between mb-2">
-                                            <p class="font-semibold text-pink-900">Layer Reset (${slide.layerResets.length}):</p>
+                                            <p class="font-semibold text-pink-900">Layer Reset (${(slide.layerResets || []).length}):</p>
                                             <button onclick="dismissCategoryInSlide(${slide.slideNumber}, 'layerResets')" class="text-xs bg-pink-600 hover:bg-pink-700 text-white px-2 py-1 rounded">
                                                 Dismiss All Layers
                                             </button>
                                         </div>
                                         <ul class="space-y-1">
-                                            ${slide.layerResets.map((err, idx) => {
+                                            ${(slide.layerResets || []).map((err, idx) => {
                                                 const errorId = `slide${slide.slideNumber}_layerResets_${idx}`;
                                                 return `
                                                     <li class="text-sm text-gray-700 error-item" data-error-id="${errorId}">
@@ -5259,16 +5265,16 @@
                                     </div>
                                 ` : ''}
                                 
-                                ${slide.contentRules.length > 0 ? `
+                                ${(slide.contentRules || []).length > 0 ? `
                                     <div class="border-l-4 border-pink-500 pl-4">
                                         <div class="flex items-center justify-between mb-2">
-                                            <p class="font-semibold text-pink-900">Content Rules (${slide.contentRules.length}):</p>
+                                            <p class="font-semibold text-pink-900">Content Rules (${(slide.contentRules || []).length}):</p>
                                             <button onclick="dismissCategoryInSlide(${slide.slideNumber}, 'contentRules')" class="text-xs bg-pink-600 hover:bg-pink-700 text-white px-2 py-1 rounded">
                                                 Dismiss All
                                             </button>
                                         </div>
                                         <ul class="space-y-1">
-                                            ${slide.contentRules.map((err, idx) => {
+                                            ${(slide.contentRules || []).map((err, idx) => {
                                                 const errorId = `slide${slide.slideNumber}_contentRules_${idx}`;
                                                 return `<li class="text-sm text-gray-700 error-item" data-error-id="${errorId}"><label class="flex items-start gap-2 cursor-pointer"><input type="checkbox" class="mt-0.5 error-checkbox" data-slide="${slide.slideNumber}" data-category="contentRules" data-error-id="${errorId}"><span>${err}</span></label></li>`;
                                             }).join('')}
@@ -5276,14 +5282,14 @@
                                     </div>
                                 ` : ''}
                                 
-                                ${slide.autoAdvance.length > 0 ? `
+                                ${(slide.autoAdvance || []).length > 0 ? `
                                     <div class="border-l-4 border-red-500 pl-4">
                                         <div class="flex items-center justify-between mb-2">
-                                            <p class="font-semibold text-red-900">Auto-Advance (${slide.autoAdvance.length}):</p>
+                                            <p class="font-semibold text-red-900">Auto-Advance (${(slide.autoAdvance || []).length}):</p>
                                             <button onclick="dismissCategoryInSlide(${slide.slideNumber}, 'autoAdvance')" class="text-xs bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded">Dismiss All</button>
                                         </div>
                                         <ul class="space-y-1">
-                                            ${slide.autoAdvance.map((err, idx) => {
+                                            ${(slide.autoAdvance || []).map((err, idx) => {
                                                 const errorId = `slide${slide.slideNumber}_autoAdvance_${idx}`;
                                                 return `<li class="text-sm text-gray-700 error-item" data-error-id="${errorId}"><label class="flex items-start gap-2 cursor-pointer"><input type="checkbox" class="mt-0.5 error-checkbox" data-slide="${slide.slideNumber}" data-category="autoAdvance" data-error-id="${errorId}"><span>⏩ ${err}</span></label></li>`;
                                             }).join('')}
@@ -5291,14 +5297,14 @@
                                     </div>
                                 ` : ''}
                                 
-                                ${slide.triggerPatterns.length > 0 ? `
+                                ${(slide.triggerPatterns || []).length > 0 ? `
                                     <div class="border-l-4 border-yellow-500 pl-4">
                                         <div class="flex items-center justify-between mb-2">
-                                            <p class="font-semibold text-yellow-900">Nav Triggers (${slide.triggerPatterns.length}):</p>
+                                            <p class="font-semibold text-yellow-900">Nav Triggers (${(slide.triggerPatterns || []).length}):</p>
                                             <button onclick="dismissCategoryInSlide(${slide.slideNumber}, 'triggerPatterns')" class="text-xs bg-yellow-600 hover:bg-yellow-700 text-white px-2 py-1 rounded">Dismiss All</button>
                                         </div>
                                         <ul class="space-y-1">
-                                            ${slide.triggerPatterns.map((err, idx) => {
+                                            ${(slide.triggerPatterns || []).map((err, idx) => {
                                                 const errorId = `slide${slide.slideNumber}_triggerPatterns_${idx}`;
                                                 return `<li class="text-sm text-gray-700 error-item" data-error-id="${errorId}"><label class="flex items-start gap-2 cursor-pointer"><input type="checkbox" class="mt-0.5 error-checkbox" data-slide="${slide.slideNumber}" data-category="triggerPatterns" data-error-id="${errorId}"><span>${err}</span></label></li>`;
                                             }).join('')}
@@ -5306,16 +5312,16 @@
                                     </div>
                                 ` : ''}
                                 
-                                ${slide.triggers.length > 0 ? `
+                                ${(slide.triggers || []).length > 0 ? `
                                     <div class="border-l-4 border-blue-500 pl-4">
                                         <div class="flex items-center justify-between mb-2">
-                                            <p class="font-semibold text-blue-900">Trigger Issues (${slide.triggers.length}):</p>
+                                            <p class="font-semibold text-blue-900">Trigger Issues (${(slide.triggers || []).length}):</p>
                                             <button onclick="dismissCategoryInSlide(${slide.slideNumber}, 'triggers')" class="text-xs bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded">
                                                 Dismiss All Triggers
                                             </button>
                                         </div>
                                         <ul class="space-y-1">
-                                            ${slide.triggers.map((err, idx) => {
+                                            ${(slide.triggers || []).map((err, idx) => {
                                                 const errorId = `slide${slide.slideNumber}_triggers_${idx}`;
                                                 return `
                                                     <li class="text-sm text-gray-700 error-item" data-error-id="${errorId}">
@@ -5387,16 +5393,16 @@
                                     </div>
                                 ` : ''}
                                 
-                                ${slide.screenshots.length > 0 ? `
+                                ${(slide.screenshots || []).length > 0 ? `
                                     <div class="border-l-4 border-pink-500 pl-4">
                                         <div class="flex items-center justify-between mb-2">
-                                            <p class="font-semibold text-pink-900">Screenshot Issues (${slide.screenshots.length}):</p>
+                                            <p class="font-semibold text-pink-900">Screenshot Issues (${(slide.screenshots || []).length}):</p>
                                             <button onclick="dismissCategoryInSlide(${slide.slideNumber}, 'screenshots')" class="text-xs bg-pink-600 hover:bg-pink-700 text-white px-2 py-1 rounded">
                                                 Dismiss All Screenshots
                                             </button>
                                         </div>
                                         <ul class="space-y-1">
-                                            ${slide.screenshots.map((err, idx) => {
+                                            ${(slide.screenshots || []).map((err, idx) => {
                                                 const errorId = `slide${slide.slideNumber}_screenshots_${idx}`;
                                                 return `
                                                     <li class="text-sm text-gray-700 error-item" data-error-id="${errorId}">
@@ -5495,16 +5501,16 @@
                                     </div>
                                 ` : ''}
                                 
-                                ${slide.pageNumbers.length > 0 ? `
+                                ${(slide.pageNumbers || []).length > 0 ? `
                                     <div class="border-l-4 border-gray-500 pl-4">
                                         <div class="flex items-center justify-between mb-2">
-                                            <p class="font-semibold text-gray-900">Page Numbers (${slide.pageNumbers.length}):</p>
+                                            <p class="font-semibold text-gray-900">Page Numbers (${(slide.pageNumbers || []).length}):</p>
                                             <button onclick="dismissCategoryInSlide(${slide.slideNumber}, 'pageNumbers')" class="text-xs bg-gray-600 hover:bg-gray-700 text-white px-2 py-1 rounded">
                                                 Dismiss All Page Numbers
                                             </button>
                                         </div>
                                         <ul class="space-y-1">
-                                            ${slide.pageNumbers.map((err, idx) => {
+                                            ${(slide.pageNumbers || []).map((err, idx) => {
                                                 const errorId = `slide${slide.slideNumber}_pageNumbers_${idx}`;
                                                 return `
                                                     <li class="text-sm text-gray-700 error-item" data-error-id="${errorId}">
@@ -5522,11 +5528,11 @@
                                     </div>
                                 ` : ''}
                                 
-                                ${slide.screenshots.length > 0 ? `
+                                ${(slide.screenshots || []).length > 0 ? `
                                     <div class="border-l-4 border-pink-500 pl-4">
-                                        <p class="font-semibold text-pink-900 mb-2">Screenshot Issues (${slide.screenshots.length}):</p>
+                                        <p class="font-semibold text-pink-900 mb-2">Screenshot Issues (${(slide.screenshots || []).length}):</p>
                                         <ul class="space-y-1">
-                                            ${slide.screenshots.map(err => `
+                                            ${(slide.screenshots || []).map(err => `
                                                 <li class="text-sm text-gray-700">
                                                     <label class="flex items-start gap-2 cursor-pointer">
                                                         <input type="checkbox" class="mt-0.5 error-fix-checkbox" data-slide="${slide.slideNumber}" data-type="screenshots">
@@ -5586,11 +5592,11 @@
                                     </div>
                                 ` : ''}
                                 
-                                ${slide.pageNumbers.length > 0 ? `
+                                ${(slide.pageNumbers || []).length > 0 ? `
                                     <div class="border-l-4 border-gray-500 pl-4">
-                                        <p class="font-semibold text-gray-900 mb-2">Page Numbers (${slide.pageNumbers.length}):</p>
+                                        <p class="font-semibold text-gray-900 mb-2">Page Numbers (${(slide.pageNumbers || []).length}):</p>
                                         <ul class="space-y-1">
-                                            ${slide.pageNumbers.map(err => `
+                                            ${(slide.pageNumbers || []).map(err => `
                                                 <li class="text-sm text-gray-700">
                                                     <label class="flex items-start gap-2 cursor-pointer">
                                                         <input type="checkbox" class="mt-0.5 error-fix-checkbox" data-slide="${slide.slideNumber}" data-type="pageNumbers">
