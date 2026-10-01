@@ -3177,6 +3177,17 @@
             }
             
             if (wordsToDisplay.length > 0) {
+                // Build word occurrence counts
+                const wordCounts = new Map();
+                data.spellCheckIssues.forEach(issue => {
+                    issue.issues.forEach(err => {
+                        const w = (err.word || '').toLowerCase();
+                        if (w && wordsToDisplay.includes(w)) {
+                            wordCounts.set(w, (wordCounts.get(w) || 0) + 1);
+                        }
+                    });
+                });
+                
                 html += `
                     <div class="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                         <h3 class="font-bold text-lg mb-3">⚠️ Words Not Found (${wordsToDisplay.length})</h3>
@@ -3191,10 +3202,13 @@
                 `;
                 
                 for (const word of wordsToDisplay) {
+                    const count = wordCounts.get(word) || 0;
+                    const countBadge = count > 1 ? `<span class="inline-flex items-center justify-center bg-red-100 text-red-800 text-xs font-bold ml-1 px-2 py-0.5 rounded-full">${count}</span>` : '';
                     html += `
-                        <label class="flex items-center">
-                            <input type="checkbox" class="word-checkbox mr-2 h-4 w-4 text-blue-600" data-word="${word}">
-                            <span class="text-sm font-mono">${word}</span>
+                        <label class="flex items-center gap-1">
+                            <input type="checkbox" class="word-checkbox mr-1 h-4 w-4 text-blue-600" data-word="${word}">
+                            <span class="text-sm font-mono">${word}${countBadge}</span>
+                            <span onclick="copyWordsToClipboard('${word}')" class="cursor-pointer text-xs text-gray-400 hover:text-blue-600 ml-1" title="Copy word">📋</span>
                         </label>
                     `;
                 }
