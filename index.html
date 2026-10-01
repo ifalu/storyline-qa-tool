@@ -3204,7 +3204,11 @@
                         <button id="addToDictBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg text-sm">
                             Add Selected to Custom Dictionary
                         </button>
+                        <button onclick="copyWordsToClipboard(document.querySelectorAll('.word-checkbox:checked').length > 0 ? Array.from(document.querySelectorAll('.word-checkbox:checked')).map(c => c.dataset.word).join(', ') : Array.from(document.querySelectorAll('.word-checkbox')).map(c => c.dataset.word).join(', '))" class="ml-2 bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg text-sm">
+                            📋 Copy All to Clipboard
+                        </button>
                     </div>
+                    <p class="text-xs text-gray-500 mt-1">Copy words and use Ctrl+F in Storyline to find them.</p>
                 `;
             } else {
                 html += '<div class="bg-green-50 border border-green-200 rounded-lg p-4"><p class="text-green-800 font-medium">✓ No spelling issues found!</p></div>';
@@ -5989,6 +5993,31 @@
         } else {
             console.log('⚡ DOM already loaded, setting up immediately...');
             setTimeout(setupEventListeners, 0);
+        }
+        
+        function copyWordsToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                // Find or create a flash message
+                let flash = document.getElementById('copyFlash');
+                if (!flash) {
+                    flash = document.createElement('div');
+                    flash.id = 'copyFlash';
+                    flash.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#2563eb;color:white;padding:12px 24px;border-radius:8px;z-index:9999;font-size:14px;box-shadow:0 4px 12px rgba(0,0,0,0.2)'; 
+                    document.body.appendChild(flash);
+                }
+                flash.textContent = '✅ Copied ' + text.split(',').length + ' words to clipboard!';
+                flash.style.display = 'block';
+                setTimeout(() => { flash.style.display = 'none'; }, 2000);
+            }).catch(() => {
+                // Fallback: select text manually
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert('Copied to clipboard!');
+            });
         }
     </script>
 </body>
