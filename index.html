@@ -1595,6 +1595,38 @@
                                         targetId: targetId
                                     });
                                 }
+                                // Also handle jump kind and motion-based navigation (prev/next)
+                                if (action.kind === 'jump') {
+                                    const targetRef = (action.to || action.target || '');
+                                    if (targetRef === 'previous' || targetRef === 'prev' || targetRef.includes('previous')) {
+                                        navTargets.push({
+                                            triggerName: currentObjName || 'Previous Button',
+                                            targetSlide: '<< PREVIOUS SLIDE >>',
+                                            targetId: 'previous_slide'
+                                        });
+                                    }
+                                    if (targetRef === 'next' || targetRef.includes('next')) {
+                                        navTargets.push({
+                                            triggerName: currentObjName || 'Next Button',
+                                            targetSlide: '<< NEXT SLIDE >>',
+                                            targetId: 'next_slide'
+                                        });
+                                    }
+                                }
+                                if (action.motion === 'prevslide') {
+                                    navTargets.push({
+                                        triggerName: currentObjName || 'Previous Button',
+                                        targetSlide: '<< PREVIOUS SLIDE >>',
+                                        targetId: 'previous_slide'
+                                    });
+                                }
+                                if (action.motion === 'nextslide') {
+                                    navTargets.push({
+                                        triggerName: currentObjName || 'Next Button',
+                                        targetSlide: '<< NEXT SLIDE >>',
+                                        targetId: 'next_slide'
+                                    });
+                                }
                             }
                         }
                     }
