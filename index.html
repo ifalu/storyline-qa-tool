@@ -1155,20 +1155,29 @@
                     if (!evt.actions) continue;
                     for (const a of evt.actions) {
                         // Check for gotoplay patterns that rely on slide numbering
-                        if (a.kind === 'gotoplay') {
-                            const targetRef = a.objRef?.value || '';
-                            if (targetRef.includes('previous') || targetRef.includes('prev')) {
+                        if (a.kind === 'gotoplay' || a.kind === 'jump') {
+                            const targetRef = a.objRef?.value || (a.to || a.target || '');
+                            // gotoplay actions store ref in objRef.value; jump actions use to/target
+                            if (targetRef.includes('previous') || targetRef.includes('prev') || targetRef === 'previous') {
                                 issues.push({
                                     type: 'previous_trigger',
-                                    message: `"Return to previous" trigger detected — may break if slide numbers change`
+                                    message: '"Return to previous" trigger detected — may break if slide numbers change'
                                 });
                             }
-                            if (targetRef.includes('next')) {
+                            if (targetRef.includes('next') || targetRef === 'next') {
                                 issues.push({
                                     type: 'next_trigger',
-                                    message: `"Slide to next" trigger detected — may break if slide numbers change`
+                                    message: '"Slide to next" trigger detected — may break if slide numbers change'
                                 });
                             }
+                        }
+                        // Also check for built-in motion-based navigation
+                        if (a.motion === 'prevslide' || a.motion === 'nextslide') {
+                            const label = a.motion === 'prevslide' ? 'Previous' : 'Next';
+                            issues.push({
+                                type: a.motion === 'prevslide' ? 'previous_trigger' : 'next_trigger',
+                                message: `"${label} Slide" trigger detected — may break if slide numbers change`
+                            });
                         }
                     }
                 }
