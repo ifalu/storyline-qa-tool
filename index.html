@@ -2417,11 +2417,12 @@
                 }
                 
                 // Detect "Reset to Initial State" setting
+                // Storyline default is false (property missing = don't reset)
                 const resetOnRevisit = slideData.acc_ResetOnRevisit ?? 
                                       slideData.resetOnRevisit ?? 
                                       slideData.slideProperties?.resetOnRevisit ?? 
                                       slideData.acc_resetOnRevisit ??
-                                      true; // Storyline default is true
+                                      false; // Storyline default is false (resume saved state)
 
                 // Also check each layer's reset setting
                 const layerData = [];
