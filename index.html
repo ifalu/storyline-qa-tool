@@ -714,7 +714,8 @@
         setupManualDictionaryUpload(); // Setup manual upload fallback
         
         function checkSpelling(word) {
-            const cleanWord = word.toLowerCase().trim();
+            // Strip leading/trailing non-letter characters (¡ ¿, etc.)
+            const cleanWord = word.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, '').toLowerCase().trim();
             
             if (cleanWord.length < 2) return { isValid: true };
             if (/^[0-9\s\-.,!?;:()]+$/.test(cleanWord)) return { isValid: true };
@@ -2288,13 +2289,17 @@
                             }
                         }
                         
+                        const cleanWord = word.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, '').trim();
+                    const wordLower = cleanWord.toLowerCase();
+                    
                         const spellCheck = checkSpelling(word);
                         if (!spellCheck.isValid) {
-                            const wordLower = word.toLowerCase();
                             analysis.allMisspelledWords.add(wordLower);
                             
-                            if (!analysis.wordContexts.has(wordLower)) {
-                                analysis.wordContexts.set(wordLower, span.text.substring(0, 200));
+                            // Store original form (preserve case) for display — keep longest form
+                            const existing = analysis.wordContexts.get(wordLower);
+                            if (!existing || cleanWord.length > existing.length) {
+                                analysis.wordContexts.set(wordLower, cleanWord);
                             }
                             
                             slideSpellCheckIssues.push({
@@ -3282,11 +3287,12 @@
                 
                 for (const word of wordsToDisplay) {
                     const count = wordCounts.get(word) || 0;
+                    const displayWord = data.wordContexts.get(word) || word;
                     const countBadge = count > 1 ? `<span class="inline-flex items-center justify-center bg-red-100 text-red-800 text-xs font-bold ml-1 px-2 py-0.5 rounded-full">${count}</span>` : '';
                     html += `
                         <label class="flex items-center gap-1">
                             <input type="checkbox" class="word-checkbox mr-1 h-4 w-4 text-blue-600" data-word="${word}">
-                            <span class="text-sm font-mono">${word}${countBadge}</span>
+                            <span class="text-sm font-mono">${displayWord}${countBadge}</span>
                             <span onclick="copyWordsToClipboard('${word}')" class="cursor-pointer text-xs text-gray-400 hover:text-blue-600 ml-1" title="Copy word">📋</span>
                         </label>
                     `;
